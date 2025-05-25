@@ -336,9 +336,55 @@ void loop1() {
     for (uint8_t mux_address = 0; mux_address < 7; mux_address++) {
         gpio_put_masked(0b111 << 13, mux_address << 13);
         delay(1);
+        long duration;
         bool state = gpio_get(PIN_MUX_IN);
 
         switch (mux_address) {
+            case 0:
+            	digitalWrite(PIN_MUX_OUT, LOW);
+				delayMicroseconds(2);
+				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
+				delayMicroseconds(10);
+				digitalWrite(PIN_MUX_OUT, LOW);
+				duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
+				mutex_enter_blocking(&mtx_status_message);
+				if (duration) {
+				  status_message.uss_ranges_m[2] = duration  * 0.000343 / 2;  // convert to distance
+				} else {
+				  status_message.uss_ranges_m[2] = 2.99;
+				}
+				mutex_exit(&mtx_status_message);
+				break;
+            case 1:
+                digitalWrite(PIN_MUX_OUT, LOW);
+                delayMicroseconds(2);
+                digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
+                delayMicroseconds(10);
+                digitalWrite(PIN_MUX_OUT, LOW);
+                duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
+                mutex_enter_blocking(&mtx_status_message);
+                if (duration) {
+                  status_message.uss_ranges_m[1] = duration  * 0.000343 / 2;  // convert to distance
+                } else {
+                  status_message.uss_ranges_m[1] = 2.99;
+                }
+                mutex_exit(&mtx_status_message);
+                break;
+            case 3:
+                digitalWrite(PIN_MUX_OUT, LOW);
+                delayMicroseconds(2);
+                digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
+                delayMicroseconds(10);
+                digitalWrite(PIN_MUX_OUT, LOW);
+                duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
+                mutex_enter_blocking(&mtx_status_message);
+                if (duration) {
+                  status_message.uss_ranges_m[3] = duration  * 0.000343 / 2;  // convert to distance
+                } else {
+                  status_message.uss_ranges_m[3] = 2.99;
+                }
+                mutex_exit(&mtx_status_message);
+                break;
             case 5:
                 mutex_enter_blocking(&mtx_status_message);
 
