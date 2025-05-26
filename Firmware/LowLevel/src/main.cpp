@@ -107,6 +107,8 @@ bool charging_allowed = false;
 bool ROS_running = false;
 unsigned long charging_disabled_time = 0;
 
+int numberoftimesincharging=0;
+
 float imu_temp[9];
 float pitch_angle = 0, roll_angle = 0, tilt_angle = 0;
 
@@ -738,7 +740,7 @@ void onPacketReceived(const uint8_t *buffer, const size_t size) {
 
 // returns true, if it's a good idea to charge the battery (current, voltages, ...)
 bool checkShouldCharge() {
-    return status_message.v_charge < llhl_config.v_charge_cutoff && status_message.charging_current < llhl_config.i_charge_cutoff && float) (analogRead(PIN_ANALOG_CHARGE_CURRENT) - adc_offset) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2); < llhl_config.v_battery_cutoff;
+    return status_message.v_charge < llhl_config.v_charge_cutoff && status_message.charging_current < llhl_config.i_charge_cutoff &&  (analogRead(PIN_ANALOG_CHARGE_VOLTAGE) - adc_offset) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2) < llhl_config.v_battery_cutoff;
 }
 
 void updateChargingEnabled() {
@@ -825,16 +827,17 @@ void loop() {
         updateNeopixel();
 
         status_message.v_battery =
-        		((float)analogRead(PIN_ANALOG_BATTERY_VOLTAGE) - adc_offset) * (3.33f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2);
+        		(((float)analogRead(PIN_ANALOG_BATTERY_VOLTAGE) - adc_offset) * (3.33f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2)) * 0.2f + status_message.v_battery * 0.8f;
         status_message.v_charge =
-        		((float)analogRead(PIN_ANALOG_BATTERY_VOLTAGE) - adc_offset) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2);
-        status_message.charging_current = llhl_config.options.ignore_charging_current == OptionState::ON ? -1.0f : (float)analogRead(PIN_ANALOG_CHARGE_CURRENT) * (3.3f / 4096.0f) / (CURRENT_SENSE_GAIN * R_SHUNT);
+        		(((float)analogRead(PIN_ANALOG_CHARGE_VOLTAGE) - adc_offset) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2)) * 0.2f + status_message.v_charge * 0.8f;
+        status_message.charging_current = llhl_config.options.ignore_charging_current == OptionState::ON ? -1.0f : (((float)analogRead(PIN_ANALOG_CHARGE_CURRENT) - adc_offset) * (3.3f / 4096.0f) / (CURRENT_SENSE_GAIN * R_SHUNT)) * 0.1f + status_message.charging_current * 0.9f + 0.11;
 
-        if(
-				ROS_running &&
-				last_high_level_state.current_mode == HighLevelMode::MODE_AUTONOMOUS &&
-				last_high_level_state.gps_quality != 0
-			) {
+        if( status_message.v_charge<1.5){
+        	numberoftimesincharging++;
+        }else{
+        	numberoftimesincharging=0;
+        }
+        if(numberoftimesincharging>50) {
 			adc_offset_samples[next_adc_offset_sample++] = (float)analogRead(PIN_ANALOG_CHARGE_VOLTAGE);
 			next_adc_offset_sample %= 20;
 
