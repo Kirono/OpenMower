@@ -56,6 +56,12 @@ SerialPIO uiSerial(PIN_UI_TX, PIN_UI_RX, 250);
 #define R_SHUNT 0.003f
 #define CURRENT_SENSE_GAIN 100.0f
 
+int next_adc_offset_sample = 0;
+float adc_offset_samples[20] = {0};
+float adc_offset = 0.0f;
+// Limit adc_offset to 3%
+#define MAX_ADC_OFFSET_PC 0.03f
+
 // Emergency will be engaged, if no heartbeat was received in this time frame.
 #define HEARTBEAT_MILLIS 500
 
@@ -732,7 +738,7 @@ void onPacketReceived(const uint8_t *buffer, const size_t size) {
 
 // returns true, if it's a good idea to charge the battery (current, voltages, ...)
 bool checkShouldCharge() {
-    return status_message.v_charge < llhl_config.v_charge_cutoff && status_message.charging_current < llhl_config.i_charge_cutoff && status_message.v_battery < llhl_config.v_battery_cutoff;
+    return status_message.v_charge < llhl_config.v_charge_cutoff && status_message.charging_current < llhl_config.i_charge_cutoff && float) (analogRead(PIN_ANALOG_CHARGE_CURRENT) - adc_offset) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2); < llhl_config.v_battery_cutoff;
 }
 
 void updateChargingEnabled() {
@@ -819,11 +825,31 @@ void loop() {
         updateNeopixel();
 
         status_message.v_battery =
-                (float) analogRead(PIN_ANALOG_BATTERY_VOLTAGE) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2);
+        		((float)analogRead(PIN_ANALOG_BATTERY_VOLTAGE) - adc_offset) * (3.33f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2);
         status_message.v_charge =
-                (float) analogRead(PIN_ANALOG_CHARGE_VOLTAGE) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2);
+        		((float)analogRead(PIN_ANALOG_BATTERY_VOLTAGE) - adc_offset) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2);
         status_message.charging_current = llhl_config.options.ignore_charging_current == OptionState::ON ? -1.0f : (float)analogRead(PIN_ANALOG_CHARGE_CURRENT) * (3.3f / 4096.0f) / (CURRENT_SENSE_GAIN * R_SHUNT);
 
+        if(
+				ROS_running &&
+				last_high_level_state.current_mode == HighLevelMode::MODE_AUTONOMOUS &&
+				last_high_level_state.gps_quality != 0
+			) {
+			adc_offset_samples[next_adc_offset_sample++] = (float)analogRead(PIN_ANALOG_CHARGE_VOLTAGE);
+			next_adc_offset_sample %= 20;
+
+			float tmp = 0.0f;
+			for(int i=0; i<20; i++) {
+				tmp += adc_offset_samples[i];
+			}
+			float new_adc_offset = tmp / 20.0f;
+			// Limit maximum offset
+			if(new_adc_offset > 0.0f) {
+				adc_offset = min(new_adc_offset, (4096 * MAX_ADC_OFFSET_PC));
+			} else {
+				adc_offset = max(new_adc_offset, -(4096 * MAX_ADC_OFFSET_PC));
+			}
+		}
 
         // ESC power saving
         bool shutdown_escs = false;
