@@ -346,6 +346,7 @@ void loop1() {
         delay(1);
         long duration;
         bool state = gpio_get(PIN_MUX_IN);
+        static int countrain = 0;
 
         switch (mux_address) {
             case 0:
@@ -395,12 +396,19 @@ void loop1() {
                 break;
             case 5:
                 mutex_enter_blocking(&mtx_status_message);
-
                 if (state || stock_ui_rain) {
-                    status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
-                } else {
-                    status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
-                }
+					if(countrain>500){
+						status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
+					}else{
+						countrain++;
+					}
+				} else {
+					if(countrain){
+						countrain--;
+					}else{
+						status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
+					}
+				}
                 mutex_exit(&mtx_status_message);
 
                 break;
