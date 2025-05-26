@@ -56,13 +56,8 @@ SerialPIO uiSerial(PIN_UI_TX, PIN_UI_RX, 250);
 #define R_SHUNT 0.003f
 #define CURRENT_SENSE_GAIN 100.0f
 
-int next_adc_offset_sample = 0;
-float adc_offset_samples[20] = {0};
-float adc_offset = 0.0f;
-// Limit adc_offset to 3%
-#define MAX_ADC_OFFSET_PC 0.03f
 
-// Emergency will be engaged, if no heartbeat was received in this time frame.
+// Ecergency will be engaged, if no heartbeat was received in this time frame.
 #define HEARTBEAT_MILLIS 500
 
 NeoPixelConnect p(PIN_NEOPIXEL, 1);
@@ -101,13 +96,12 @@ struct msg_set_leds leds_message = {0};
 // We can lock it during message transmission to prevent core1 to modify data in this time.
 auto_init_mutex(mtx_status_message);
 
+int countrain = 0;
 bool emergency_latch = true;
 bool sound_available = false;
 bool charging_allowed = false;
 bool ROS_running = false;
 unsigned long charging_disabled_time = 0;
-
-int numberoftimesincharging=0;
 
 float imu_temp[9];
 float pitch_angle = 0, roll_angle = 0, tilt_angle = 0;
@@ -346,7 +340,6 @@ void loop1() {
         delay(1);
         long duration;
         bool state = gpio_get(PIN_MUX_IN);
-        static int countrain = 0;
 
         switch (mux_address) {
             case 0:
@@ -397,13 +390,13 @@ void loop1() {
             case 5:
                 mutex_enter_blocking(&mtx_status_message);
                 if (state || stock_ui_rain) {
-					if(countrain>500){
+					if(countrain>50){
 						status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
 					}else{
 						countrain++;
 					}
 				} else {
-					if(countrain){
+					if(countrain>0){
 						countrain--;
 					}else{
 						status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
@@ -748,7 +741,7 @@ void onPacketReceived(const uint8_t *buffer, const size_t size) {
 
 // returns true, if it's a good idea to charge the battery (current, voltages, ...)
 bool checkShouldCharge() {
-    return status_message.v_charge < llhl_config.v_charge_cutoff && status_message.charging_current < llhl_config.i_charge_cutoff &&  (analogRead(PIN_ANALOG_CHARGE_VOLTAGE) - adc_offset) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2) < llhl_config.v_battery_cutoff;
+	return status_message.v_charge < llhl_config.v_charge_cutoff && status_message.charging_current < llhl_config.i_charge_cutoff && status_message.v_battery < llhl_config.v_battery_cutoff;
 }
 
 void updateChargingEnabled() {
@@ -835,32 +828,10 @@ void loop() {
         updateNeopixel();
 
         status_message.v_battery =
-        		(((float)analogRead(PIN_ANALOG_BATTERY_VOLTAGE) - adc_offset) * (3.33f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2)) * 0.2f + status_message.v_battery * 0.8f;
-        status_message.v_charge =
-        		(((float)analogRead(PIN_ANALOG_CHARGE_VOLTAGE) - adc_offset) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2)) * 0.2f + status_message.v_charge * 0.8f;
-        status_message.charging_current = llhl_config.options.ignore_charging_current == OptionState::ON ? -1.0f : (((float)analogRead(PIN_ANALOG_CHARGE_CURRENT) - adc_offset) * (3.3f / 4096.0f) / (CURRENT_SENSE_GAIN * R_SHUNT)) * 0.1f + status_message.charging_current * 0.9f + 0.11;
-
-        if( status_message.v_charge<1.5){
-        	numberoftimesincharging++;
-        }else{
-        	numberoftimesincharging=0;
-        }
-        if(numberoftimesincharging>50) {
-			adc_offset_samples[next_adc_offset_sample++] = (float)analogRead(PIN_ANALOG_CHARGE_VOLTAGE);
-			next_adc_offset_sample %= 20;
-
-			float tmp = 0.0f;
-			for(int i=0; i<20; i++) {
-				tmp += adc_offset_samples[i];
-			}
-			float new_adc_offset = tmp / 20.0f;
-			// Limit maximum offset
-			if(new_adc_offset > 0.0f) {
-				adc_offset = min(new_adc_offset, (4096 * MAX_ADC_OFFSET_PC));
-			} else {
-				adc_offset = max(new_adc_offset, -(4096 * MAX_ADC_OFFSET_PC));
-			}
-		}
+                        ((float) analogRead(PIN_ANALOG_BATTERY_VOLTAGE) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2)) * 0.2f + status_message.v_battery * 0.8f;
+                status_message.v_charge =
+                        ((float) analogRead(PIN_ANALOG_CHARGE_VOLTAGE) * (3.3f / 4096.0f) * ((VIN_R1 + VIN_R2) / VIN_R2)) * 0.2f + status_message.v_charge * 0.8f;
+        status_message.charging_current = llhl_config.options.ignore_charging_current == OptionState::ON ? -1.0f : ((float)analogRead(PIN_ANALOG_CHARGE_CURRENT) * (3.3f / 4096.0f) / (CURRENT_SENSE_GAIN * R_SHUNT)) * 0.1f + status_message.charging_current * 0.9f;
 
         // ESC power saving
         bool shutdown_escs = false;
