@@ -344,7 +344,7 @@ void loop1() {
         switch (mux_address) {
             case 0:
             	digitalWrite(PIN_MUX_OUT, LOW);
-				delayMicroseconds(2);
+            	delay(50);
 				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
 				delayMicroseconds(10);
 				digitalWrite(PIN_MUX_OUT, LOW);
@@ -359,7 +359,7 @@ void loop1() {
 				break;
             case 1:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delayMicroseconds(2);
+                delay(50);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
@@ -374,7 +374,7 @@ void loop1() {
                 break;
             case 3:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delayMicroseconds(2);
+                delay(50);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
