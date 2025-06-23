@@ -340,51 +340,59 @@ void loop1() {
         delay(1);
         long duration;
         bool state = gpio_get(PIN_MUX_IN);
+		float range=0;
+		float rangerounded=0;
 
         switch (mux_address) {
             case 0:
             	digitalWrite(PIN_MUX_OUT, LOW);
-				delayMicroseconds(2);
+            	delay(5);
 				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
 				delayMicroseconds(10);
 				digitalWrite(PIN_MUX_OUT, LOW);
 				duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
 				mutex_enter_blocking(&mtx_status_message);
 				if (duration) {
-				  status_message.uss_ranges_m[2] = duration  * 0.000343 / 2;  // convert to distance
+				  range = duration  * 0.000343 / 2;  // convert to distance
 				} else {
-				  status_message.uss_ranges_m[2] = 2.99;
+				  range = 2.99;
 				}
+				rangerounded = ((int)(range * 100 + .5) / 100.0);
+				status_message.uss_ranges_m[2]=status_message.uss_ranges_m[2] * 0.7f + rangerounded * 0.3f;
 				mutex_exit(&mtx_status_message);
 				break;
             case 1:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delayMicroseconds(2);
+                delay(5);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
                 duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
                 mutex_enter_blocking(&mtx_status_message);
                 if (duration) {
-                  status_message.uss_ranges_m[1] = duration  * 0.000343 / 2;  // convert to distance
+                  range = duration  * 0.000343 / 2;  // convert to distance
                 } else {
                   status_message.uss_ranges_m[1] = 2.99;
                 }
+				rangerounded = ((int)(range * 100 + .5) / 100.0);
+				status_message.uss_ranges_m[1]=status_message.uss_ranges_m[1] * 0.7f + rangerounded * 0.3f;
                 mutex_exit(&mtx_status_message);
                 break;
             case 3:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delayMicroseconds(2);
+                delay(5);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
                 duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
                 mutex_enter_blocking(&mtx_status_message);
                 if (duration) {
-                  status_message.uss_ranges_m[3] = duration  * 0.000343 / 2;  // convert to distance
+                  range = duration  * 0.000343 / 2;  // convert to distance
                 } else {
-                  status_message.uss_ranges_m[3] = 2.99;
+                  range = 2.99;
                 }
+				rangerounded = ((int)(range * 100 + .5) / 100.0);
+				status_message.uss_ranges_m[3]=status_message.uss_ranges_m[3] * 0.7f + rangerounded * 0.3f;
                 mutex_exit(&mtx_status_message);
                 break;
             case 5:
