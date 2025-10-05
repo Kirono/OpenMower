@@ -337,7 +337,7 @@ void loop1() {
     // Loop through the mux and query actions. Store the result in the multicore fifo
     for (uint8_t mux_address = 0; mux_address < 7; mux_address++) {
         gpio_put_masked(0b111 << 13, mux_address << 13);
-        delay(1);
+        delay(10);
         long duration;
         bool state = gpio_get(PIN_MUX_IN);
 		float range=0;
@@ -346,7 +346,7 @@ void loop1() {
         switch (mux_address) {
             case 0:
             	digitalWrite(PIN_MUX_OUT, LOW);
-            	delay(5);
+            	delay(1);
 				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
 				delayMicroseconds(10);
 				digitalWrite(PIN_MUX_OUT, LOW);
@@ -363,7 +363,7 @@ void loop1() {
 				break;
             case 1:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delay(5);
+                delay(1);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
@@ -380,7 +380,7 @@ void loop1() {
                 break;
             case 3:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delay(5);
+                delay(1);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
@@ -405,11 +405,13 @@ void loop1() {
 					}
 				} else {
 					if(countrain>0){
-						countrain--;
+						countrain=0;
 					}else{
 						status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
 					}
 				}
+                status_message.uss_ranges_m[0]=(float)countrain;
+                status_message.uss_ranges_m[4]=(float)state;
                 mutex_exit(&mtx_status_message);
 
                 break;
@@ -431,7 +433,7 @@ void loop1() {
     soundSystem::processSounds(status_message, ROS_running, last_high_level_state);
 #endif
 
-    delay(100);
+
 }
 
 void setup() {
