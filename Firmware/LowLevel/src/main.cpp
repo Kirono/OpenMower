@@ -337,7 +337,6 @@ void loop1() {
     // Loop through the mux and query actions. Store the result in the multicore fifo
     for (uint8_t mux_address = 0; mux_address < 7; mux_address++) {
         gpio_put_masked(0b111 << 13, mux_address << 13);
-        delay(10);
         long duration;
         bool state = gpio_get(PIN_MUX_IN);
         long range = 0;
@@ -346,7 +345,7 @@ void loop1() {
         switch (mux_address) {
             case 0:
             	digitalWrite(PIN_MUX_OUT, LOW);
-            	delay(1000);
+            	delay(1);
 				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
 				delayMicroseconds(10);
 				digitalWrite(PIN_MUX_OUT, LOW);
@@ -363,7 +362,7 @@ void loop1() {
 				break;
             case 1:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delay(1000);
+                delay(1);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
@@ -380,7 +379,7 @@ void loop1() {
 				break;
               case 3:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delay(1000);
+                delay(1);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
