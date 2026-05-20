@@ -341,11 +341,11 @@ void loop1() {
         bool state = gpio_get(PIN_MUX_IN);
         long range = 0;
         long rangetosend[3] = {0,0,0};
-
+        delay(1);
         switch (mux_address) {
             case 0:
             	digitalWrite(PIN_MUX_OUT, LOW);
-            	delay(1);
+            	delayMicroseconds(2);
 				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
 				delayMicroseconds(10);
 				digitalWrite(PIN_MUX_OUT, LOW);
@@ -362,7 +362,7 @@ void loop1() {
 				break;
             case 1:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delay(1);
+                delayMicroseconds(2);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
@@ -379,7 +379,7 @@ void loop1() {
 				break;
               case 3:
                 digitalWrite(PIN_MUX_OUT, LOW);
-                delay(1);
+                delayMicroseconds(2);
                 digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
                 delayMicroseconds(10);
                 digitalWrite(PIN_MUX_OUT, LOW);
