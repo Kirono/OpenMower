@@ -416,7 +416,7 @@ void loop1() {
 				}else{
 					status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
 				}
-                status_message.uss_ranges_m[0]=(state || stock_ui_rain);
+                status_message.uss_ranges_m[0]=(state);
                 status_message.uss_ranges_m[4]=(float)gpio_get(PIN_EMERGENCY_3);
                 mutex_exit(&mtx_status_message);
                 delay(10);
