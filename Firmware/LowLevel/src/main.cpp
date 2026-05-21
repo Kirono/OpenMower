@@ -395,8 +395,9 @@ void loop1() {
 				mutex_exit(&mtx_status_message);
 				break;
             case 5:
+            	delay(10);
                 mutex_enter_blocking(&mtx_status_message);
-                if (state || stock_ui_rain) {
+                /*if (state || stock_ui_rain) {
 					if(countrain>50){
 						status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
 					}else{
@@ -408,11 +409,17 @@ void loop1() {
 					}else{
 						status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
 					}
+				}*/
+                if (state || stock_ui_rain) {
+					status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
+
+				}else{
+					status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
 				}
-                status_message.uss_ranges_m[0]=(float)countrain;
+                status_message.uss_ranges_m[0]=(state || stock_ui_rain);
                 status_message.uss_ranges_m[4]=(float)gpio_get(PIN_EMERGENCY_3);
                 mutex_exit(&mtx_status_message);
-
+                delay(10);
                 break;
             case 6:
                 mutex_enter_blocking(&mtx_status_message);
