@@ -345,35 +345,56 @@ void loop1() {
 
 	        switch (mux_address) {
 	        case 0:
-	                    	digitalWrite(PIN_MUX_OUT, LOW);
-	                    	delayMicroseconds(2);
-	        				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
-	        				delayMicroseconds(10);
-	        				digitalWrite(PIN_MUX_OUT, LOW);
-	        				duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
-	        				mutex_enter_blocking(&mtx_status_message);
-	        				if (duration) {
-	        					range = duration  / 58;  // convert to distance
-	        				} else {
-	        					range = 299;
-	        				}
-	        				rangetosend[0]=rangetosend[0] * 0.7f + range * 0.3f;
-	        				status_message.uss_ranges_m[2]=(float)range*10;
-	        				mutex_exit(&mtx_status_message);
-	        				break;
-	                    case 1:
-	                        digitalWrite(PIN_MUX_OUT, LOW);
-	                        delayMicroseconds(2);
-	                        digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
-	                        delayMicroseconds(10);
-	                        digitalWrite(PIN_MUX_OUT, LOW);
-	                        duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
-	                        mutex_enter_blocking(&mtx_status_message);
-	        @@ -393,7 +393,7 @@
-	        				rangetosend[2]=rangetosend[2] * 0.7f + range * 0.3f;
-	        				status_message.uss_ranges_m[3]=(float)range*10;
-	        				mutex_exit(&mtx_status_message);
-	        				break;
+				digitalWrite(PIN_MUX_OUT, LOW);
+				delayMicroseconds(2);
+				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
+				delayMicroseconds(10);
+				digitalWrite(PIN_MUX_OUT, LOW);
+				duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
+				mutex_enter_blocking(&mtx_status_message);
+				if (duration) {
+					range = duration  / 58;  // convert to distance
+				} else {
+					range = 299;
+				}
+				rangetosend[0]=rangetosend[0] * 0.7f + range * 0.3f;
+				status_message.uss_ranges_m[2]=(float)range*10;
+				mutex_exit(&mtx_status_message);
+				break;
+			case 1:
+				digitalWrite(PIN_MUX_OUT, LOW);
+				delayMicroseconds(2);
+				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
+				delayMicroseconds(10);
+				digitalWrite(PIN_MUX_OUT, LOW);
+				duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
+				mutex_enter_blocking(&mtx_status_message);
+				if (duration) {
+					range = duration  / 58;  // convert to distance
+				} else {
+					range = 299;
+				}
+				rangetosend[1]=rangetosend[1] * 0.7f + range * 0.3f;;
+				status_message.uss_ranges_m[1]=(float)range*10;
+				mutex_exit(&mtx_status_message);
+				break;
+			  case 3:
+				digitalWrite(PIN_MUX_OUT, LOW);
+				delayMicroseconds(2);
+				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
+				delayMicroseconds(10);
+				digitalWrite(PIN_MUX_OUT, LOW);
+				duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
+				mutex_enter_blocking(&mtx_status_message);
+				if (duration) {
+					range = duration  / 58;  // convert to distance
+				} else {
+					range = 299;
+				}
+				rangetosend[2]=rangetosend[2] * 0.7f + range * 0.3f;
+				status_message.uss_ranges_m[3]=(float)range*10;
+				mutex_exit(&mtx_status_message);
+				break;
 	            case 5:
 	                mutex_enter_blocking(&mtx_status_message);
 	                if (state || stock_ui_rain) {
