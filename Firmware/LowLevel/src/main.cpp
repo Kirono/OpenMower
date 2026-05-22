@@ -335,13 +335,13 @@ void setup1() {
 
 void loop1() {
     // Loop through the mux and query actions. Store the result in the multicore fifo
+	long rangetosend[3] = {0,0,0}
 	for (uint8_t mux_address = 0; mux_address < 7; mux_address++) {
 	        gpio_put_masked(0b111 << 13, mux_address << 13);
 	        delay(10);
 	        long duration;
 	        bool state = gpio_get(PIN_MUX_IN);
-			float range=0;
-			float rangerounded=0;
+	        long range = 0;
 
 	        switch (mux_address) {
 	        case 0:
