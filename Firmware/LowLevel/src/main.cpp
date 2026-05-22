@@ -484,7 +484,8 @@ void setup() {
 
     pinMode(PIN_EMERGENCY_1, INPUT);
     pinMode(PIN_EMERGENCY_2, INPUT);
-    pinMode(PIN_EMERGENCY_3, INPUT_PULLDOWN);
+    pinMode(PIN_EMERGENCY_3, INPUT);
+    pullUpDnControl(PIN_EMERGENCY_3, PUD_DOWN);
     pinMode(PIN_EMERGENCY_4, INPUT);
 
     analogReadResolution(12);
