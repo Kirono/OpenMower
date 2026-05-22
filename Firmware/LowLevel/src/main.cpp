@@ -335,104 +335,99 @@ void setup1() {
 
 void loop1() {
     // Loop through the mux and query actions. Store the result in the multicore fifo
-    for (uint8_t mux_address = 0; mux_address < 7; mux_address++) {
-        gpio_put_masked(0b111 << 13, mux_address << 13);
-        long duration;
-        bool state = gpio_get(PIN_MUX_IN);
-        long range = 0;
-        long rangetosend[3] = {0,0,0};
-        delay(1);
-        switch (mux_address) {
-            /*case 0:
-            	digitalWrite(PIN_MUX_OUT, LOW);
-            	delayMicroseconds(2);
-				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
-				delayMicroseconds(10);
-				digitalWrite(PIN_MUX_OUT, LOW);
-				duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
-				mutex_enter_blocking(&mtx_status_message);
-				if (duration) {
-					range = duration  / 58;  // convert to distance
-				} else {
-					range = 299;
-				}
-				rangetosend[0]=rangetosend[0] * 0.7f + range * 0.3f;
-				status_message.uss_ranges_m[2]=(float)range*10;
-				mutex_exit(&mtx_status_message);
-				break;
-            case 1:
-                digitalWrite(PIN_MUX_OUT, LOW);
-                delayMicroseconds(2);
-                digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
-                delayMicroseconds(10);
-                digitalWrite(PIN_MUX_OUT, LOW);
-                duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
-                mutex_enter_blocking(&mtx_status_message);
-				if (duration) {
-					range = duration  / 58;  // convert to distance
-				} else {
-					range = 299;
-				}
-				rangetosend[1]=rangetosend[1] * 0.7f + range * 0.3f;;
-				status_message.uss_ranges_m[1]=(float)range*10;
-				mutex_exit(&mtx_status_message);
-				break;
-              case 3:
-                digitalWrite(PIN_MUX_OUT, LOW);
-                delayMicroseconds(2);
-                digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
-                delayMicroseconds(10);
-                digitalWrite(PIN_MUX_OUT, LOW);
-                duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
-                mutex_enter_blocking(&mtx_status_message);
-				if (duration) {
-					range = duration  / 58;  // convert to distance
-				} else {
-					range = 299;
-				}
-				rangetosend[2]=rangetosend[2] * 0.7f + range * 0.3f;
-				status_message.uss_ranges_m[3]=(float)range*10;
-				mutex_exit(&mtx_status_message);
-				break;*/
-            case 5:
-            	delay(100);
-                mutex_enter_blocking(&mtx_status_message);
-                /*if (state || stock_ui_rain) {
-					if(countrain>50){
-						status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
-					}else{
-						countrain++;
+	for (uint8_t mux_address = 0; mux_address < 7; mux_address++) {
+	        gpio_put_masked(0b111 << 13, mux_address << 13);
+	        delay(10);
+	        long duration;
+	        bool state = gpio_get(PIN_MUX_IN);
+			float range=0;
+			float rangerounded=0;
+
+	        switch (mux_address) {
+	            case 0:
+	            	digitalWrite(PIN_MUX_OUT, LOW);
+	            	delay(1);
+					digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
+					delayMicroseconds(10);
+					digitalWrite(PIN_MUX_OUT, LOW);
+					duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
+					mutex_enter_blocking(&mtx_status_message);
+					if (duration) {
+					  range = duration  * 0.000343 / 2;  // convert to distance
+					} else {
+					  range = 2.99;
 					}
-				} else {
-					if(countrain>0){
-						countrain--;
-					}else{
-						status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
+					rangerounded = ((int)(range * 100 + .5) / 100.0);
+					status_message.uss_ranges_m[2]=status_message.uss_ranges_m[2] * 0.7f + rangerounded * 0.3f;
+					mutex_exit(&mtx_status_message);
+					break;
+	            case 1:
+	                digitalWrite(PIN_MUX_OUT, LOW);
+	                delay(1);
+	                digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
+	                delayMicroseconds(10);
+	                digitalWrite(PIN_MUX_OUT, LOW);
+	                duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
+	                mutex_enter_blocking(&mtx_status_message);
+	                if (duration) {
+	                  range = duration  * 0.000343 / 2;  // convert to distance
+	                } else {
+	                  status_message.uss_ranges_m[1] = 2.99;
+	                }
+					rangerounded = ((int)(range * 100 + .5) / 100.0);
+					status_message.uss_ranges_m[1]=status_message.uss_ranges_m[1] * 0.7f + rangerounded * 0.3f;
+	                mutex_exit(&mtx_status_message);
+	                break;
+	            case 3:
+	                digitalWrite(PIN_MUX_OUT, LOW);
+	                delay(1);
+	                digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
+	                delayMicroseconds(10);
+	                digitalWrite(PIN_MUX_OUT, LOW);
+	                duration = pulseIn(PIN_MUX_IN, HIGH, 17434);  // receive reflected waves
+	                mutex_enter_blocking(&mtx_status_message);
+	                if (duration) {
+	                  range = duration  * 0.000343 / 2;  // convert to distance
+	                } else {
+	                  range = 2.99;
+	                }
+					rangerounded = ((int)(range * 100 + .5) / 100.0);
+					status_message.uss_ranges_m[3]=status_message.uss_ranges_m[3] * 0.7f + rangerounded * 0.3f;
+	                mutex_exit(&mtx_status_message);
+	                break;
+	            case 5:
+	                mutex_enter_blocking(&mtx_status_message);
+	                if (state || stock_ui_rain) {
+						if(countrain>50){
+							status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
+						}else{
+							countrain++;
+						}
+					} else {
+						if(countrain>0){
+							countrain=0;
+						}else{
+							status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
+						}
 					}
-				}*/
-                if (state || stock_ui_rain) {
-					status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
-				} else {
-					status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
-				}
-                status_message.uss_ranges_m[0]=(state);
-                status_message.uss_ranges_m[4]=(float)gpio_get(PIN_EMERGENCY_3);
-                mutex_exit(&mtx_status_message);
-                delay(10);
-                break;
-            case 6:
-                mutex_enter_blocking(&mtx_status_message);
-                if (state) {
-                    status_message.status_bitmask &= ~LL_STATUS_BIT_SOUND_BUSY;
-                } else {
-                    status_message.status_bitmask |= LL_STATUS_BIT_SOUND_BUSY;
-                }
-                mutex_exit(&mtx_status_message);
-                break;
-            default:
-                break;
-        }
-    }
+	                status_message.uss_ranges_m[0]=(countrain);
+	                status_message.uss_ranges_m[4]=(float)gpio_get(PIN_EMERGENCY_3);
+	                mutex_exit(&mtx_status_message);
+
+	                break;
+	            case 6:
+	                mutex_enter_blocking(&mtx_status_message);
+	                if (state) {
+	                    status_message.status_bitmask &= ~LL_STATUS_BIT_SOUND_BUSY;
+	                } else {
+	                    status_message.status_bitmask |= LL_STATUS_BIT_SOUND_BUSY;
+	                }
+	                mutex_exit(&mtx_status_message);
+	                break;
+	            default:
+	                break;
+	        }
+	    }
 
 #ifdef ENABLE_SOUND_MODULE
     soundSystem::processSounds(status_message, ROS_running, last_high_level_state);
