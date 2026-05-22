@@ -343,7 +343,7 @@ void loop1() {
         long rangetosend[3] = {0,0,0};
         delay(1);
         switch (mux_address) {
-            case 0:
+            /*case 0:
             	digitalWrite(PIN_MUX_OUT, LOW);
             	delayMicroseconds(2);
 				digitalWrite(PIN_MUX_OUT, HIGH);  // send waves for 10 us
@@ -393,7 +393,7 @@ void loop1() {
 				rangetosend[2]=rangetosend[2] * 0.7f + range * 0.3f;
 				status_message.uss_ranges_m[3]=(float)range*10;
 				mutex_exit(&mtx_status_message);
-				break;
+				break;*/
             case 5:
             	delay(100);
                 mutex_enter_blocking(&mtx_status_message);
@@ -412,8 +412,7 @@ void loop1() {
 				}*/
                 if (state || stock_ui_rain) {
 					status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
-
-				}else{
+				} else {
 					status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
 				}
                 status_message.uss_ranges_m[0]=(state);
