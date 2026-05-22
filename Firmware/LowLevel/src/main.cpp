@@ -355,7 +355,7 @@ void loop1() {
 				} else {
 					range = 299;
 				}
-				status_message.uss_ranges_m[2]=(float)range*10;
+				status_message.uss_ranges_m[2]=(float)range;
 				mutex_exit(&mtx_status_message);
 				break;
 			case 1:
@@ -371,7 +371,7 @@ void loop1() {
 				} else {
 					range = 299;
 				}
-				status_message.uss_ranges_m[1]=(float)range*10;
+				status_message.uss_ranges_m[1]=(float)range;
 				mutex_exit(&mtx_status_message);
 				break;
 			  case 3:
@@ -387,7 +387,7 @@ void loop1() {
 				} else {
 					range = 299;
 				}
-				status_message.uss_ranges_m[3]=(float)range*10;
+				status_message.uss_ranges_m[3]=(float)range;
 				mutex_exit(&mtx_status_message);
 				break;
 	            case 5:
