@@ -395,7 +395,7 @@ void loop1() {
 				mutex_exit(&mtx_status_message);
 				break;
             case 5:
-            	delay(10);
+            	delay(100);
                 mutex_enter_blocking(&mtx_status_message);
                 /*if (state || stock_ui_rain) {
 					if(countrain>50){
