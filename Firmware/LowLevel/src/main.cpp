@@ -400,7 +400,7 @@ void loop1() {
 						}
 					} else {
 						if(countrain>0){
-							countrain=0;
+							countrain--;
 						}else{
 							status_message.status_bitmask &= ~LL_STATUS_BIT_RAIN;
 						}
