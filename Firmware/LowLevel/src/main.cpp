@@ -396,7 +396,7 @@ void loop1() {
 						if(countrain>50){
 							status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
 						}else{
-							countrain++;
+							countrain=51;
 						}
 					} else {
 						if(countrain>0){
