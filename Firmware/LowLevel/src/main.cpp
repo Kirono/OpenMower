@@ -393,10 +393,10 @@ void loop1() {
 	            case 5:
 	                mutex_enter_blocking(&mtx_status_message);
 	                if (state || stock_ui_rain) {
-						if(countrain>50){
+						if(countrain>=50){
 							status_message.status_bitmask |= LL_STATUS_BIT_RAIN;
 						}else{
-							countrain=51;
+							countrain+=10;
 						}
 					} else {
 						if(countrain>0){
